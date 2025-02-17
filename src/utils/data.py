@@ -2,27 +2,22 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import pandas as pd
 
-def fetch_stock_data(ticker, period):
+def fetch_stock_data(ticker, date_range, interval):
     """
     Fetch historical stock data for a given ticker and period
     """
-    interval_mapping = {
-        '1d': '1m',
-        '1wk': '15m',
-        '3mo': '1d',
-        '1y': '1h',
-        'max': '1d'
-    }
 
-    interval = interval_mapping[period]
-    end_date = datetime.now()
-    if period == '1wk':
-        start_date = end_date - timedelta(days=7)
-        data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=False)
-    else:
-        data = yf.download(ticker, period=period, interval=interval, progress=False)
+    data = yf.download(ticker, start=date_range[0], end=date_range[1], interval=interval, progress=False)
+
+    # end_date = datetime.now()
+    # if period == '1wk':
+    #     start_date = end_date - timedelta(days=7)
+    #     data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=False)
+    # else:
+    #     data = yf.download(ticker, period=period, interval=interval, progress=False)
+
+    # data = yf.download(ticker, period=period, interval=interval, progress=False)
     return data
-
 
 def process_data(data):
     """Ensure data is timezone-aware, formatted correctly, and indexed by Datetime."""
