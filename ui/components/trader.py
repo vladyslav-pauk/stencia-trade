@@ -9,7 +9,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from src.utils.data import fetch_stock_data, process_data
 from src.trend.support_resistance import add_support_resistance_data
 from src.trade.strategy import support_resistance
-from src.utils.chart import create_trader_chart
+from src.utils.charts import create_trader_chart
 
 def trader_tab(st):
     st.session_state.selected_tab = "Trader"

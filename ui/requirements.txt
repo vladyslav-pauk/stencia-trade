@@ -6,6 +6,7 @@ pandas-datareader
 prophet
 ta
 tradingview-ta
+mplfinance
 giotto-tda
 scipy
 persim

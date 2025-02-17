@@ -5,7 +5,7 @@ import pandas as pd
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
-from src.utils.chart import create_chart, add_indicator_charts
+from src.utils.charts import create_chart, add_indicator_charts
 from src.utils.indicators import add_indicator_data
 from src.utils.data import fetch_stock_data, process_data
 from src.trend.support_resistance import add_support_resistance_data
