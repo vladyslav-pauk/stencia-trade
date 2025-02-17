@@ -7,8 +7,8 @@ def colors(alpha=0.5):
     colors = {
         'support': f'rgba(255, 100, 100, {alpha})',
         'resistance': f'rgba(0, 255, 150, {alpha})',
-        'pivot': f'rgba(0, 255, 0, 0.5)',
-        'neutral': 'orange'
+        'pivot': f'rgba(0, 255, 0, {alpha})',
+        'neutral': f'rgba(255, 165, 0, {alpha})'
     }
     return colors
 
