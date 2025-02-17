@@ -5,6 +5,7 @@ yfinance
 pandas-datareader
 prophet
 ta
+tradingview-ta
 giotto-tda
 scipy
 persim
