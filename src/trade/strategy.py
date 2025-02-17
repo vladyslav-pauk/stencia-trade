@@ -46,6 +46,7 @@ def support_resistance(data, strategy_type, entry_threshold, stop_loss, take_pro
 
     # ✅ Compute Cumulative Returns (Relative to Price Movement)
     if not signals_df.empty:
-        signals_df["Cumulative Returns"] = (1 + signals_df["Returns"]).cumprod()
+        signals_df["Cumulative Returns"] = signals_df["Price"] * (1 + signals_df["Returns"]).cumprod()
+        signals_df["Relative Returns"] = (1 + signals_df["Returns"]).cumprod()
 
     return signals_df

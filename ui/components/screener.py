@@ -32,6 +32,8 @@ import mplfinance as mpf
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
+from src.utils.charts import create_chart, add_indicator_charts, plot_screener_results
+
 # Define list of tickers
 TICKERS = [
     "AAPL", "MSFT", "GOOG", "AMZN", "NVDA", "META", "HD", "MCD", "NFLX", "JNJ",
@@ -128,11 +130,11 @@ def screener_tab(st):
     st.session_state.selected_tab = "Screener"
 
     with st.sidebar:
-        st.header("Stock Screener Settings")
+        st.header("Stock Screener")
         screener_criteria = st.selectbox("Select Screener Criteria", [
             "Most Active", "Top Gainers", "Top Losers", "52 Week High", "52 Week Low"
         ])
-        run_screener = st.button("Screen Stocks")
+        run_screener = st.button("Screen")
 
         st.divider()
         st.subheader("Filters")
@@ -241,65 +243,6 @@ def fetch_screener_data(tickers):
         tickers_data.append({"Ticker": ticker, **data})
 
     return pd.DataFrame(tickers_data)
-
-
-def plot_screener_results(df):
-    """Generate a Plotly horizontal bar chart for buy/sell/neutral recommendations."""
-    # Define category order for sorting
-    order_categories = {"STRONG_BUY": 5, "BUY": 4, "NEUTRAL": 3, "SELL": 2, "STRONG_SELL": 1}
-    df["Order"] = df["RECOMMENDATION"].map(order_categories)
-    df = df.sort_values("Order", ascending=True).reset_index(drop=True)
-
-    # Create Plotly bar chart
-    fig = go.Figure()
-
-    fig.add_trace(go.Bar(
-        y=df["Ticker"],
-        x=df["BUY"],
-        name="Buy Indicators",
-        marker_color="blue",
-        orientation="h"
-    ))
-
-    fig.add_trace(go.Bar(
-        y=df["Ticker"],
-        x=df["NEUTRAL"],
-        name="Neutral Indicators",
-        marker_color="gray",
-        orientation="h"
-    ))
-
-    fig.add_trace(go.Bar(
-        y=df["Ticker"],
-        x=df["SELL"],
-        name="Sell Indicators",
-        marker_color="orange",
-        orientation="h"
-    ))
-
-    # Add annotations for recommendations on the right-hand side of each bar
-    for i, recommendation in enumerate(df["RECOMMENDATION"]):
-        fig.add_annotation(
-            x=df["BUY"].iloc[i] + df["NEUTRAL"].iloc[i] + df["SELL"].iloc[i] + 3,  # Position slightly outside the bars
-            y=df["Ticker"].iloc[i],
-            text=recommendation,
-            showarrow=False,
-            font=dict(color="white", size=12),
-            bgcolor="black",
-            bordercolor="black"
-        )
-
-    # Update layout
-    fig.update_layout(
-        title="Stock Screener Recommendations",
-        barmode="stack",
-        xaxis_title="Number of Indicators",
-        yaxis_title="Tickers",
-        height=700,
-        margin=dict(l=10, r=100, t=40, b=10)  # Extra right margin for labels
-    )
-
-    return fig
 
 
 # def screener_tab(st):

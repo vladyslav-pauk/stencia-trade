@@ -4,13 +4,13 @@ import ta
 from src.tda.homology import compute_topological_metrics
 from src.tda.embedding import embedding_time_series
 
-def add_indicator_data(data):
-    data['SMA'] = ta.trend.sma_indicator(data['Close'].squeeze(), window=20)
-    data['EMA'] = ta.trend.ema_indicator(data['Close'].squeeze(), window=20)
+def add_indicator_data(data, indicators, settings):
+    data['SMA'] = ta.trend.sma_indicator(data['Close'].squeeze(), window=settings.get('sma_window', 20))
+    data['EMA'] = ta.trend.ema_indicator(data['Close'].squeeze(), window=settings.get('ema_window', 20))
 
-    embedding_delay = 5
-    embedding_dimension = 5
-    sliding_window_size = 20
+    embedding_delay = settings.get('delay', 5)
+    embedding_dimension = settings.get('dimension', 5)
+    sliding_window_size = settings.get('window_size', 20)
     sliding_stride = 1
     embedding_sequence, embedding_indices = embedding_time_series(data['Close'].squeeze(), embedding_delay, embedding_dimension,
                                                                   sliding_window_size, stride=sliding_stride)

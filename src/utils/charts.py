@@ -3,6 +3,15 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import numpy as np
 
+def colors(alpha=0.5):
+    colors = {
+        'support': f'rgba(255, 100, 100, {alpha})',
+        'resistance': f'rgba(0, 255, 150, {alpha})',
+        'pivot': f'rgba(0, 255, 0, 0.5)',
+        'neutral': 'orange'
+    }
+    return colors
+
 
 def create_chart(data, ticker, chart_type):
     """
@@ -65,42 +74,61 @@ def create_chart(data, ticker, chart_type):
 
 
 def add_support_resistance(fig, data):
-    """Add weekly support and resistance bands to the chart."""
-    fig.add_trace(go.Scatter(
-        x=data['Datetime'], y=data['Support2'], mode='lines',
-        line=dict(color='rgba(0, 0, 255, 0)'), showlegend=False, hoverinfo='skip'
-    ))
-    fig.add_trace(go.Scatter(
-        x=data['Datetime'], y=data['Support1'], mode='lines',
-        name='Support', line=dict(color='rgba(0, 0, 255, 0)'),
-        fill='tonexty', fillcolor='rgba(0, 0, 255, 0.2)'
-    ))
-    fig.add_trace(go.Scatter(
-        x=data['Datetime'], y=data['Resistance1'], mode='lines',
-        line=dict(color='rgba(255, 165, 0, 0)'), showlegend=False, hoverinfo='skip'
-    ))
-    fig.add_trace(go.Scatter(
-        x=data['Datetime'], y=data['Resistance2'], mode='lines',
-        name='Resistance', line=dict(color='rgba(255, 165, 0, 0)'),
-        fill='tonexty', fillcolor='rgba(255, 165, 0, 0.2)'
-    ))
-    fig.add_trace(go.Scatter(
-        x=data['Datetime'], y=data['Pivot'], mode='lines',
-        name='Pivot', line=dict(color='blue', width=2, dash='dash')
-    ))
+    """
+    Add multiple levels of support and resistance bands dynamically.
+
+    Args:
+        fig (go.Figure): The Plotly figure to modify.
+        data (pd.DataFrame): Data containing support and resistance levels.
+        levels (int): Number of support & resistance levels to plot.
+        alpha (float): Transparency for the shaded regions (0 to 1).
+    """
+    levels = data.filter(like='Support').shape[1]
+
+    # Dynamically add multiple support levels
+    for i in range(1, levels + 1):
+        support_lower = f'Support{i + 1}' if i + 1 <= levels else f'Support{i}'
+        support_upper = f'Support{i}'
+
+        if support_lower in data and support_upper in data:
+            fig.add_trace(go.Scatter(
+                x=data['Datetime'], y=data[support_lower], mode='lines',
+                line=dict(color='rgba(0, 0, 255, 0)'), showlegend=False, hoverinfo='skip'
+            ))
+            fig.add_trace(go.Scatter(
+                x=data['Datetime'], y=data[support_upper], mode='lines',
+                name=f'Support {i}', line=dict(color='rgba(0, 0, 255, 0)'),
+                fill='tonexty', fillcolor=colors(i / levels)['support']
+            ))
+
+    # Dynamically add multiple resistance levels
+    for i in range(1, levels + 1):
+        resistance_lower = f'Resistance{i}'
+        resistance_upper = f'Resistance{i + 1}' if i + 1 <= levels else f'Resistance{i}'
+
+        if resistance_lower in data and resistance_upper in data:
+            fig.add_trace(go.Scatter(
+                x=data['Datetime'], y=data[resistance_lower], mode='lines',
+                line=dict(color=f'rgba(255, 165, 0, 0)'), showlegend=False, hoverinfo='skip'
+            ))
+            fig.add_trace(go.Scatter(
+                x=data['Datetime'], y=data[resistance_upper], mode='lines',
+                name=f'Resistance {i}', line=dict(color=f'rgba(255, 165, 0, 0)'),
+                fill='tonexty', fillcolor=colors(i / levels)['resistance']
+            ))
+
+    # Pivot Line
+    if 'Pivot' in data:
+        fig.add_trace(go.Scatter(
+            x=data['Datetime'], y=data['Pivot'], mode='lines',
+            name='Pivot', line=dict(color=colors()['pivot'], width=2, dash='dash')
+        ))
+
     return fig
 
 
 def add_indicator_charts(fig, data, indicators):
     for indicator in indicators:
-        # if indicator == 'SMA 20':
-        #     fig.add_trace(go.Scatter(x=data['Datetime'], y=data['SMA_20'], name='SMA 20'))
-        # elif indicator == 'EMA 20':
-        #     fig.add_trace(go.Scatter(x=data['Datetime'], y=data['EMA_20'], name='EMA 20'))
-        # elif indicator == 'TDA':
-        #     fig.add_trace(go.Scatter(x=data['Datetime'], y=data['TDA'], name='TDA'))
-        # elif indicator == 'S&R':
-
         if indicator == 'S&R':
             fig = add_support_resistance(fig, data)
         else:
@@ -218,7 +246,7 @@ def create_trader_chart(st):
         title="Trader",
         # xaxis_title='Time',
         yaxis_title='Price (USD)',
-        height=700,
+        height=800,
         showlegend=True,
         margin=dict(l=10, r=10, t=30, b=70),
     )
@@ -243,13 +271,13 @@ def plot_trading_results(trade_data, full_data):
     # Plot Cumulative Returns
     fig.add_trace(go.Scatter(
         x=trade_data["Date"],
-        y=trade_data["Cumulative Returns"] * full_data["Close"].iloc[0],
+        y=trade_data["Cumulative Returns"],
         mode="lines",
-        name="Returns",
-        line=dict(color="yellow", width=2),
+        name="Cumulative Returns",
+        line=dict(color="orange", width=2),
     ))
 
-    # --- Weekly Support Band ---
+    # --- Support Band ---
     fig.add_trace(go.Scatter(
         x=full_data.index,
         y=full_data['Support2'],
@@ -265,10 +293,10 @@ def plot_trading_results(trade_data, full_data):
         name='Support Zone',
         line=dict(color='rgba(0, 0, 255, 0)'),  # Invisible upper bound
         fill='tonexty',
-        fillcolor='rgba(255, 100, 100, 0.5)'
+        fillcolor=colors()['support']
     ))
 
-    # --- Weekly Resistance Band ---
+    # --- Resistance Band ---
     fig.add_trace(go.Scatter(
         x=full_data.index,
         y=full_data['Resistance1'],
@@ -284,7 +312,7 @@ def plot_trading_results(trade_data, full_data):
         name='Resistance Zone',
         line=dict(color='rgba(255, 0, 0, 0)'),  # Invisible upper bound
         fill='tonexty',
-        fillcolor='rgba(0, 255, 150, 0.2)'
+        fillcolor=colors()['resistance']
     ))
 
     # Buy & Sell signals
@@ -337,7 +365,15 @@ def plot_trading_actions(st):
         marker=dict(color=["green" if r > 0 else "red" for r in st.session_state.trade_summary["Returns"]]),
         showlegend=False
     ))
-    # todo: separate legend for buy and sell
+
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=st.session_state.trade_summary["Relative Returns"] - 1,
+        mode="lines",
+        name="Relative Returns",
+        line=dict(color="yellow", width=2),
+        # showlegend=False
+    ))
 
     # fig.add_trace(go.Scatter(
     #     x=x,
@@ -359,4 +395,61 @@ def plot_trading_actions(st):
 
     return fig
 
-# todo: make subplots so it's scaled togeher when zoomed, the action suplot has 3 times smaller hegith
+
+def plot_screener_results(df):
+    """Generate a Plotly horizontal bar chart for buy/sell/neutral recommendations."""
+    # Define category order for sorting
+    order_categories = {"STRONG_BUY": 5, "BUY": 4, "NEUTRAL": 3, "SELL": 2, "STRONG_SELL": 1}
+    df["Order"] = df["RECOMMENDATION"].map(order_categories)
+    df = df.sort_values("Order", ascending=True).reset_index(drop=True)
+
+    # Create Plotly bar chart
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        y=df["Ticker"],
+        x=df["BUY"],
+        name="Buy Indicators",
+        marker_color=colors()['support'],
+        orientation="h"
+    ))
+
+    fig.add_trace(go.Bar(
+        y=df["Ticker"],
+        x=df["NEUTRAL"],
+        name="Neutral Indicators",
+        marker_color=colors()['neutral'],
+        orientation="h"
+    ))
+
+    fig.add_trace(go.Bar(
+        y=df["Ticker"],
+        x=df["SELL"],
+        name="Sell Indicators",
+        marker_color=colors()['resistance'],
+        orientation="h"
+    ))
+
+    # Add annotations for recommendations on the right-hand side of each bar
+    for i, recommendation in enumerate(df["RECOMMENDATION"]):
+        fig.add_annotation(
+            x=df["BUY"].iloc[i] + df["NEUTRAL"].iloc[i] + df["SELL"].iloc[i] + 3,  # Position slightly outside the bars
+            y=df["Ticker"].iloc[i],
+            text=recommendation,
+            showarrow=False,
+            font=dict(color="white", size=12),
+            bgcolor="black",
+            bordercolor="black"
+        )
+
+    # Update layout
+    fig.update_layout(
+        title="Stock Screener Recommendations",
+        barmode="stack",
+        xaxis_title="Number of Indicators",
+        yaxis_title="Tickers",
+        height=700,
+        margin=dict(l=10, r=100, t=40, b=10)  # Extra right margin for labels
+    )
+
+    return fig

@@ -14,7 +14,7 @@ from src.utils.charts import create_trader_chart
 def trader_tab(st):
     st.session_state.selected_tab = "Trader"
     with st.sidebar:
-        # st.header("Settings")
+        st.header("Trading Strategy")
         ticker = st.text_input("Ticker", "SPY")
         execute_trade = st.button("Backtest")
 
@@ -31,21 +31,20 @@ def trader_tab(st):
         st.subheader("Strategy")
         strategy = st.selectbox("Strategy", ["Support-Resistance", "Moving Average Crossover"])
         entry_threshold = st.slider("Entry Threshold (%)", 0.0, 1.0, 0.01, step=0.01)
-        stop_loss = st.slider("Stop Loss (%)", 0.01, 10.0, 0.5, step=0.1)
-        take_profit = st.slider("Take Profit (%)", 0.01, 10.0, 1.0, step=0.1)
+        stop_loss = st.slider("Stop Loss (%)", 0.01, 10.0, 3.0, step=0.1)
+        take_profit = st.slider("Take Profit (%)", 0.01, 10.0, 5.0, step=0.1)
+        best_parameters = st.button("Optimize Parameters")
 
         st.divider()
         st.subheader("Notifications")
         email = st.text_input("Email", "all-stenciatrade-aaaapehsn6kabhpikuy7ly7sty@stenciatrade.slack.com")
         set_notifications = st.button("Set_Notifications")
 
-    # todo: plot shouldn't disappear when i change sidebar settings
-
     if execute_trade or "trade_summary" in st.session_state:
         if execute_trade:
             st.session_state.trader_data = fetch_stock_data(ticker, date_range, interval)
             st.session_state.trader_data = process_data(st.session_state.trader_data)
-            st.session_state.trader_data = add_support_resistance_data(st.session_state.trader_data, range)
+            st.session_state.trader_data = add_support_resistance_data(st.session_state.trader_data, {'range': range})
             st.session_state.trade_summary = support_resistance(st.session_state.trader_data, strategy, entry_threshold / 100, stop_loss / 100, take_profit / 100)
 
             st.session_state.trade_fig = create_trader_chart(st)
