@@ -1,0 +1,23 @@
+parameters:
+  timesteps: 5000
+  dt: 0.001
+  noise_std: 10
+  seq_len: 100
+  batch_size: 32
+  learning_rate: 0.001
+  epochs: 300
+  predict_steps: [1, 10, 100]
+force:
+  noise_scale: 10
+  spike_length: 500
+  spike_amplitude_range: [-1000, 1000]
+  spike_interval_range: [100, 1000]
+coefficients:
+  damping_base: 0.5
+  damping_scale: 0.1
+  stiffness_base: 1.0
+  stiffness_scale: 0.1
+  nonlinear_scale: 0.2
+initial_conditions:
+  x0: 1.0
+  v0: 0.0

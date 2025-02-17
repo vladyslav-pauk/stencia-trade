@@ -1,0 +1,15 @@
+{
+    "support_levels":
+    {
+      "AAPL": 170,
+      "TSLA": 220,
+      "GOOGL": 1000,
+      "AMZN": 1500,
+      "MSFT": 100
+    },
+    "support_threshold": 1,
+    "price_drop_threshold": 20,
+    "volume_period": 3,
+    "min_forward_PE_ratio": 0.5,
+    "exclude_news_days": false
+}

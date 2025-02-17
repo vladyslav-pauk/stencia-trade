@@ -1,0 +1,14 @@
+parameters:
+  timesteps: 5000           # Number of timesteps for data generation
+  dt: 0.001                 # Time step size
+  mu: 0.05                  # Drift coefficient (expected return)
+  sigma: 0.2                # Volatility coefficient (standard deviation of returns)
+  S0: 100                   # Initial value of the asset
+  seq_len: 100              # Sequence length for the input to the model
+  batch_size: 32            # Batch size for training
+  learning_rate: 0.001      # Learning rate for optimizer
+  epochs: 300               # Number of training epochs
+  predict_steps: [1, 10, 100] # Prediction steps for testing
+
+initial_conditions:
+  S0: 100                   # Initial value for the GBM simulation

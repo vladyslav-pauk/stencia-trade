@@ -1,0 +1,11 @@
+pandas
+plotly
+streamlit
+yfinance
+pandas-datareader
+prophet
+ta
+giotto-tda
+scipy
+persim
+ripser

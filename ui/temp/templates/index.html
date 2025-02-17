@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StenciaTrade</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="left-panel">
+        <h1>StenciaTrade</h1>
+
+        <!-- Get Data Section -->
+        <div class="section">
+<!--            <div class="section-title">Get Stock Data</div>-->
+            <form method="POST" id="get-data-form">
+                <div class="form-group">
+<!--                    <label for="symbol">Ticker</label>-->
+                    <input type="text" id="symbol" name="symbol" placeholder="Enter Stock Ticker" autocomplete="off" required>
+                </div>
+                <button type="submit" name="action" value="fetch">Get Data</button>
+            </form>
+        </div>
+
+        <!-- Analyze Section -->
+        <!-- Analyze Section -->
+    <div class="section">
+<!--        <div class="section-title">Fit LPPLS Model</div>-->
+        <form method="POST" id="lppls-form">
+            <!-- Date Range Inputs -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_date">Start</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ last_params['start_date'] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ last_params['end_date'] }}" required>
+                </div>
+            </div>
+
+            <!-- Parameters Inputs -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="scaling_factor">Scaling Factor</label>
+                    <input type="number" step="0.01" id="scaling_factor" name="scaling_factor" value="{{ last_params['scaling_factor'] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="min_length">Min Length</label>
+                    <input type="number" id="min_length" name="min_length" value="{{ last_params['min_length'] }}" required>
+                </div>
+            </div>
+
+            <button type="submit" name="action" value="lppls">Fit LPPLS</button>
+        </form>
+
+
+    </div>
+
+        <div class="section">
+    <form method="POST" id="tda-form">
+<!--        <h2>TDA Parameters</h2>-->
+        <!-- Segment Choice -->
+        <div class="form-row">
+        <div class="form-group">
+            <label for="segment_choice">Select Segment</label>
+            <input type="number" id="segment_choice" name="segment_choice" min="0" required>
+        </div>
+
+        <!-- Window Size -->
+        <div class="form-group">
+            <label for="w">Window Size</label>
+            <input type="number" id="w" name="w" value="48" required>
+        </div>
+        </div>
+
+        <div class="form-row">
+        <!-- Embedding Dimension -->
+        <div class="form-group">
+            <label for="d">Embedding Dimension</label>
+            <input type="number" id="d" name="d" value="3" required>
+        </div>
+
+        <!-- Persistence Landscape Order -->
+        <div class="form-group">
+            <label for="N">Persistence Landscape Order</label>
+            <input type="number" id="N" name="N" value="4" required>
+        </div>
+        </div>
+
+        <button type="submit" name="action" value="tda">Run TDA</button>
+    </form>
+</div>
+
+        <!-- Error Message -->
+        {% if error %}
+            <p class="error-message">{{ error }}</p>
+        {% endif %}
+    </div>
+
+    <div class="right-panel">
+        <!-- Chart Section -->
+        {% if chart_data %}
+            <div class="chart-container">
+                {{ chart_data | safe }}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+
+        document.getElementById("get-data-form").addEventListener("submit", (e) => {
+            const startDateInput = document.getElementById("start_date");
+            const endDateInput = document.getElementById("end_date");
+
+            // If no value is set, retain the previous one
+            if (!startDateInput.value) {
+                startDateInput.value = startDateInput.getAttribute("value");
+            }
+            if (!endDateInput.value) {
+                endDateInput.value = endDateInput.getAttribute("value");
+            }
+        });
+
+        const getDataForm = document.getElementById('get-data-form');
+        const analyzeForm = document.getElementById('lppls-form');
+        const symbolInput = document.getElementById('symbol');
+
+        getDataForm.addEventListener('submit', () => {
+            symbolInput.setAttribute('required', 'required');
+        });
+
+        analyzeForm.addEventListener('submit', () => {
+            symbolInput.removeAttribute('required');
+        });
+    </script>
+</body>
+</html>
