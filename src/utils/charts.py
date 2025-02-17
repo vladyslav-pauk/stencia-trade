@@ -410,7 +410,7 @@ def plot_screener_results(df):
         y=df["Ticker"],
         x=df["BUY"],
         name="Buy Indicators",
-        marker_color=colors()['support'],
+        marker_color=colors()['resistance'],
         orientation="h"
     ))
 
@@ -426,7 +426,7 @@ def plot_screener_results(df):
         y=df["Ticker"],
         x=df["SELL"],
         name="Sell Indicators",
-        marker_color=colors()['resistance'],
+        marker_color=colors()['support'],
         orientation="h"
     ))
 
