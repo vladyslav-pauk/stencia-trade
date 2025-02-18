@@ -1,3 +1,7 @@
+# About
+
+Stencia-Trade is a Streamlit application that allows users to analyze and visualize stock data, backtest trading strategies, and search for trading opportunities.
+
 # Data
 
 Yahoo Finance currently limits historical data downloads depending on the resolution of data required:
