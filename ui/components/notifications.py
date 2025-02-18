@@ -1,21 +1,17 @@
-import json
-import os
-
-import time
 import smtplib
 from email.message import EmailMessage
 import threading
+import pandas as pd
+import time
+
+from src.utils.data import fetch_stock_data, process_data
+from src.trade.strategy import support_resistance_strategy
+
+from ui.components.indicators import add_support_resistance_data
 
 
 def monitor_trading_signals(email, indicator_settings, trade_settings, ticker, strategy, interval, stop_event):
     """Continuously fetch new data and send notifications when signals occur."""
-
-    import pandas as pd
-    import time
-    from src.utils.data import fetch_stock_data, process_data
-    from src.trade.strategy import support_resistance_strategy
-
-    from ui.components.indicators import add_support_resistance_data
 
     print(f"Monitoring started for {ticker} with strategy {strategy}...")
 

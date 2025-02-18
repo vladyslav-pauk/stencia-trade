@@ -42,7 +42,7 @@ def notifications_monitor(st):
             st.markdown("&nbsp;")
             if st.button("Stop Notifications", type="primary"):
                 st.session_state.stop_event.set()
-                st.success("Stopped monitoring trading signals.")
+                # st.success("Stopped monitoring trading signals.")
 
     return st
 
