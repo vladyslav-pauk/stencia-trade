@@ -14,8 +14,9 @@ def monitor_trading_signals(st, email, ticker, strategy, interval, stop_event):
     import pandas as pd
     import time
     from src.utils.data import fetch_stock_data, process_data
-    from src.trend.support_resistance import add_support_resistance_data
-    from src.trade.strategy import support_resistance
+    from src.trade.strategy import support_resistance_strategy
+
+    from ui.components.indicators import add_support_resistance_data
 
     print(f"Monitoring started for {ticker} with strategy {strategy}...")
 
@@ -34,7 +35,7 @@ def monitor_trading_signals(st, email, ticker, strategy, interval, stop_event):
         data = add_support_resistance_data(data, st.session_state.indicator_settings.get("S&R", {}))
 
         # Apply strategy
-        trade_summary = support_resistance(
+        trade_summary = support_resistance_strategy(
             data, strategy,
             st.session_state.entry_threshold / 100,
             st.session_state.stop_loss / 100,
@@ -100,7 +101,7 @@ def notifications(st, email):
             st.session_state.stop_event.clear()
             st.session_state.monitor_thread = threading.Thread(
                 target=monitor_trading_signals,
-                args=(email, st.session_state.ticker, st.session_state.strategy, st.session_state.interval,
+                args=(st, email, st.session_state.ticker, st.session_state.strategy, st.session_state.interval,
                       st.session_state.stop_event),
                 daemon=True
             )

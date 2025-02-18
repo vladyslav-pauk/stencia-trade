@@ -15,11 +15,14 @@ if "selected_tab" not in st.session_state:
 def update_tab(selected):
     st.session_state.selected_tab = selected
 
-tab_selection = st.radio("", ["Chart", "Trader", "Screener", "Portfolio", "Help"],
-                         index=["Chart", "Trader", "Screener", "Portfolio", "Help"].index(st.session_state.selected_tab),
-                         horizontal=True,
-                         on_change=update_tab,
-                         args=(st.session_state.selected_tab,))
+tab_selection = st.radio(
+    "Tabs", ["Chart", "Trader", "Screener", "Portfolio", "Help"],
+    index=["Chart", "Trader", "Screener", "Portfolio", "Help"].index(st.session_state.selected_tab),
+    horizontal=True,
+    on_change=update_tab,
+    args=(st.session_state.selected_tab,),
+    label_visibility="collapsed"
+ )
 
 if tab_selection == "Chart":
     chart_tab(st)
@@ -36,5 +39,5 @@ if tab_selection == "Portfolio":
 if tab_selection == "Help":
     help_tab(st)
 
-# fixme: error handling when yfinance data not available
-# fixme: fill help tab
+# fixme: error handling when yfinance data not available (and other errors)
+# fixme: fill in help tab

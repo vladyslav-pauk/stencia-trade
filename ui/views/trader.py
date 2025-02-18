@@ -6,7 +6,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 sys.path.insert(0, PROJECT_ROOT)
 
 from src.utils.data import fetch_stock_data, process_data
-from src.trade.strategy import support_resistance
+from src.trade.strategy import support_resistance_strategy
 
 from ui.components.notifications import notifications
 from ui.components.dashboard import notifications_monitor
@@ -22,32 +22,17 @@ def trader_tab(st):
     with st.sidebar:
         st.header("Trading Simulator")
         st.session_state.ticker = st.text_input("Ticker", "SPY")
-        chart_type = st.radio("Chart Type", ["Candlestick", "Line"], horizontal=True, label_visibility="collapsed")
-        date_range = st.date_input("Date Range", [pd.to_datetime("2024-01-01"), pd.to_datetime("now")])
+        st.session_state.chart_type = st.radio("Chart Type", ["Candlestick", "Line"], horizontal=True, label_visibility="collapsed")
+        st.session_state.date_range = st.date_input("Date Range", [pd.to_datetime("2024-01-01"), pd.to_datetime("now")])
         st.session_state.interval = st.radio("Interval", ["1d", "1h", "1m"], horizontal=True)
-
         backtest_trade = st.button("Backtest")
 
         st.divider()
         st.subheader("Trading Strategy")
-
         st.session_state.strategy = st.selectbox("Strategy", ["Support-Resistance", "Moving Average Crossover"], label_visibility="collapsed")
-        indicator = {"Support-Resistance": "S&R", "Moving Average Crossover": "SMA"}[st.session_state.strategy]
-
-        if "indicator_settings" not in st.session_state:
-            st.session_state.indicator_settings = {ind: {} for ind in ["SMA", "EMA", "TDA", "S&R", "FIB", "TRE"]}
-
-        if "trade_settings" not in st.session_state:
-            st.session_state.trade_settings = {}
-
-        if "indicators" not in st.session_state:
-            st.session_state.indicators = []
-
         st = trader_settings_loader_pane(st)
-
         st.markdown("**Indicator Settings**")
-        st = indicator_settings_pane(indicator, st)
-
+        st = indicator_settings_pane({"Support-Resistance": "S&R", "Moving Average Crossover": "SMA"}[st.session_state.strategy], st)
         st.markdown("**Trader Settings**")
         st = trader_settings_pane(st)
 
@@ -59,14 +44,14 @@ def trader_tab(st):
 
     if backtest_trade or "trade_summary" in st.session_state:
         if backtest_trade:
-            st.session_state.trader_data = fetch_stock_data(st.session_state.ticker, date_range, st.session_state.interval)
+            st.session_state.trader_data = fetch_stock_data(st.session_state.ticker, st.session_state.date_range, st.session_state.interval)
             st.session_state.trader_data = process_data(st.session_state.trader_data)
 
             st.session_state.trader_data = add_support_resistance_data(
                 st.session_state.trader_data,
                 st.session_state.indicator_settings['S&R']
             )
-            st.session_state.trade_summary = support_resistance(
+            st.session_state.trade_summary = support_resistance_strategy(
                 st.session_state.trader_data,
                 st.session_state.strategy,
                 st.session_state.trade_settings['entry_threshold'] / 100,

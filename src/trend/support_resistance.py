@@ -31,9 +31,9 @@ def compute_weekly_pivot_points(data, interval='1wk', levels=1):
         '1d': 'D',
         '1wk': 'W-FRI',
         '2wk': '2W-FRI',
-        '1mo': 'M',
-        '3mo': '3M',
-        '6mo': '6M',
+        '1mo': 'ME',
+        '3mo': '3ME',
+        '6mo': '6ME',
         '1yr': 'Y'
     }
 

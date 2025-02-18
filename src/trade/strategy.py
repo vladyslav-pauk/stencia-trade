@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def support_resistance(data, strategy_type, entry_threshold, stop_loss, take_profit):
+def support_resistance_strategy(data, strategy_type, entry_threshold, stop_loss, take_profit):
     """Implements a support-resistance trading strategy with correct cumulative return computation."""
 
     signals = []

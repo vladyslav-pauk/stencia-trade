@@ -59,7 +59,13 @@ def trader_settings_loader_pane(st):
     SETTINGS_FILE = "ui/config/trader_settings.json"
 
     if "indicator_settings" not in st.session_state:
-        st.session_state.indicator_settings = {}
+        st.session_state.indicator_settings = {ind: {} for ind in ["SMA", "EMA", "TDA", "S&R", "FIB", "TRE"]}
+
+    if "trade_settings" not in st.session_state:
+        st.session_state.trade_settings = {}
+
+    if "indicators" not in st.session_state:
+        st.session_state.indicators = []
 
     available_settings = json.load(open(SETTINGS_FILE, "r")) if os.path.exists(SETTINGS_FILE) else {}
     profile_list = list(available_settings.keys())
