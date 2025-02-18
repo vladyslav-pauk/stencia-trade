@@ -82,7 +82,7 @@ def trader_tab(st):
     # fixme: cumulative and relative profit calculation and extension
     # fixme: add show/hide table button
 
-    # fixme: 1m interval error, add 1 wk interval (handle tda error when short range)
+    # fixme: handle tda error when short range
 
     # fixme: tune and check S&R indicators and strategy
     # fixme: add checkbox to add indicators to the strategy so we have combined strategy,

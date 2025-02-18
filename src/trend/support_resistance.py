@@ -28,6 +28,8 @@ def compute_weekly_pivot_points(data, interval='1wk', levels=1):
 
     # Resampling according to the specified interval
     resample_mapping = {
+        '1m': 'T',
+        '1h': 'h',
         '1d': 'D',
         '1wk': 'W-FRI',
         '2wk': '2W-FRI',

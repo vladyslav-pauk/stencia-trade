@@ -24,3 +24,5 @@ def help_tab(st):
 
     st.header(st.session_state.selected_page)
     st.write(text.get(st.session_state.selected_page))
+
+# fixme: fill in help tab

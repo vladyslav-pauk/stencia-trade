@@ -42,6 +42,3 @@ if tab_selection == "Portfolio":
 
 if tab_selection == "Help":
     help_tab(st)
-
-# fixme: error handling when yfinance data not available (and other errors)
-# fixme: fill in help tab

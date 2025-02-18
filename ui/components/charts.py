@@ -165,6 +165,10 @@ def create_trader_chart(st):
 
     # ✅ Extrapolate cumulative returns to start and end
     start_date, end_date = trader_data.index.min(), trader_data.index.max()
+
+    if cumulative_returns.empty:
+        st.warning("No trades executed during this backtest. Adjust strategy parameters.")
+        return go.Figure()  # Return an empty figure instead of breaking
     cumulative_returns_extended = np.concatenate(
         ([cumulative_returns.iloc[0]], cumulative_returns, [cumulative_returns.iloc[-1]]))
     x_dates_extended = np.concatenate(([start_date], x_dates, [end_date]))

@@ -164,7 +164,7 @@ def indicator_settings_pane(indicator, st):
         )
 
     elif indicator == "S&R":
-        sup_res_options = ["1wk", "2wk", "1mo", "3mo", "6mo", "1yr"]
+        sup_res_options = ["1h", "1d", "1wk", "2wk", "1mo", "3mo", "6mo", "1yr"]
         default_value = st.session_state.indicator_settings[indicator].get('sup_res_range', "1mo")
 
         # Ensure the default value is in the list and get its index

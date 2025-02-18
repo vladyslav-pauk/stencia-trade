@@ -13,8 +13,6 @@ from ui.components.indicators import add_support_resistance_data
 def monitor_trading_signals(email, indicator_settings, trade_settings, ticker, strategy, interval, stop_event):
     """Continuously fetch new data and send notifications when signals occur."""
 
-    print(f"Monitoring started for {ticker} with strategy {strategy}...")
-
     while not stop_event.is_set():
         date_range = [pd.to_datetime("now") - pd.Timedelta(days=10), pd.to_datetime("now")]
 

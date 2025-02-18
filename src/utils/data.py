@@ -7,7 +7,28 @@ def fetch_stock_data(ticker, date_range, interval):
     Fetch historical stock data for a given ticker and period
     """
 
-    data = yf.download(ticker, start=date_range[0], end=date_range[1], interval=interval, progress=False)
+    if interval == "1m":
+        max_days = 8
+        start_date = pd.to_datetime("now") - pd.Timedelta(days=max_days)
+        end_date = pd.to_datetime("now")
+        date_range = [start_date, end_date]
+
+    if interval == "1h":
+        max_days = 60
+        start_date = pd.to_datetime("now") - pd.Timedelta(days=max_days)
+        end_date = pd.to_datetime("now")
+        date_range = [start_date, end_date]
+
+    try:
+        data = yf.download(ticker, start=date_range[0], end=date_range[1], interval=interval, progress=False)
+        if data.empty:
+            raise ValueError(f"No data returned for {ticker} at {interval} interval.")
+        return data
+    except Exception as e:
+        print(f"Error fetching stock data for {ticker}: {e}")
+        return pd.DataFrame()  # Return empty dataframe on failure
+
+    # data = yf.download(ticker, start=date_range[0], end=date_range[1], interval=interval, progress=False)
 
     # end_date = datetime.now()
     # if period == '1wk':

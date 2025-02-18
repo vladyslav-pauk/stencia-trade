@@ -41,8 +41,8 @@ def notifications_monitor(st):
         with col5:
             st.markdown("&nbsp;")
             if st.button("Stop Notifications", type="primary"):
-                st.session_state.stop_event.set()  # ✅ Stop the monitoring thread
-                st.session_state.monitor_thread = None  # ✅ Clear the thread reference
+                st.session_state.stop_event.set()
+                st.session_state.monitor_thread = None
                 st.rerun()
 
     return st
