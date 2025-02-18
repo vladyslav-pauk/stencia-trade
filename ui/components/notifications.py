@@ -7,9 +7,8 @@ from email.message import EmailMessage
 import threading
 
 
-def monitor_trading_signals(st, email, ticker, strategy, interval, stop_event):
+def monitor_trading_signals(email, indicator_settings, trade_settings, ticker, strategy, interval, stop_event):
     """Continuously fetch new data and send notifications when signals occur."""
-
 
     import pandas as pd
     import time
@@ -21,34 +20,30 @@ def monitor_trading_signals(st, email, ticker, strategy, interval, stop_event):
     print(f"Monitoring started for {ticker} with strategy {strategy}...")
 
     while not stop_event.is_set():
-        print("Fetching new data...")
         date_range = [pd.to_datetime("now") - pd.Timedelta(days=10), pd.to_datetime("now")]
 
         try:
             data = fetch_stock_data(ticker, date_range, interval)
-            print(f"Fetched {len(data)} rows")
         except Exception as e:
             print("Error fetching stock data:", e)
             break
 
         data = process_data(data)
-        data = add_support_resistance_data(data, st.session_state.indicator_settings.get("S&R", {}))
+        data = add_support_resistance_data(data, indicator_settings.get("S&R", {}))
 
         # Apply strategy
         trade_summary = support_resistance_strategy(
             data, strategy,
-            st.session_state.entry_threshold / 100,
-            st.session_state.stop_loss / 100,
-            st.session_state.take_profit / 100
+            trade_settings['entry_threshold'] / 100,
+            trade_settings['stop_loss'] / 100,
+            trade_settings['take_profit'] / 100
         )
 
-        print(f"Signals found: {trade_summary.shape[0]}")
-
         # Update session state
-        st.session_state.last_checked = pd.to_datetime("now").strftime("%Y-%m-%d %H:%M:%S")
-        st.session_state.current_price = data["Close"].iloc[-1] if not data.empty else None
-        st.session_state.signal_count = trade_summary.shape[0]
-        st.session_state.last_signal = trade_summary.iloc[-1].to_dict() if not trade_summary.empty else None
+        last_checked = pd.to_datetime("now").strftime("%Y-%m-%d %H:%M:%S")
+        current_price = data["Close"].iloc[-1] if not data.empty else None
+        signal_count = trade_summary.shape[0]
+        last_signal = trade_summary.iloc[-1].to_dict() if not trade_summary.empty else None
 
         # Check for new buy/sell signals
         if not trade_summary.empty:
@@ -99,10 +94,18 @@ def notifications(st, email):
     if st.session_state.set_notifications:
         if st.session_state.monitor_thread is None or not st.session_state.monitor_thread.is_alive():
             st.session_state.stop_event.clear()
+
             st.session_state.monitor_thread = threading.Thread(
                 target=monitor_trading_signals,
-                args=(st, email, st.session_state.ticker, st.session_state.strategy, st.session_state.interval,
-                      st.session_state.stop_event),
+                args=(
+                    email,
+                    st.session_state.indicator_settings,
+                    st.session_state.trade_settings,
+                    st.session_state.ticker,
+                    st.session_state.strategy,
+                    st.session_state.interval,
+                    st.session_state.stop_event
+                ),
                 daemon=True
             )
             st.session_state.monitor_thread.start()

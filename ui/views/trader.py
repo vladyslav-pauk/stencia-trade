@@ -9,7 +9,6 @@ from src.utils.data import fetch_stock_data, process_data
 from src.trade.strategy import support_resistance_strategy
 
 from ui.components.notifications import notifications
-from ui.components.dashboard import notifications_monitor
 from ui.components.sidebar import indicator_settings_pane, trader_settings_loader_pane, trader_settings_pane
 from ui.components.indicators import add_support_resistance_data
 from ui.components.charts import create_trader_chart, add_indicator_charts
@@ -65,9 +64,6 @@ def trader_tab(st):
             #     st.session_state.trader_data,
             #     [indicator]
             # )
-
-        if "monitor_thread" in st.session_state and st.session_state.monitor_thread:
-                notifications_monitor(st)
 
         st.plotly_chart(st.session_state.trade_fig, use_container_width=True)
         st.dataframe(st.session_state.trade_summary)
