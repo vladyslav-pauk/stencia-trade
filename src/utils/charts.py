@@ -51,7 +51,7 @@ def create_chart(data, ticker, chart_type):
     )
 
     fig.update_layout(
-        title=f'{ticker.upper()}',
+        title=f'Prices and Indicators',
         xaxis_title='Time',
         yaxis_title='Price (USD)',
         height=800,

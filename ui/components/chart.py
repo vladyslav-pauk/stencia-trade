@@ -8,7 +8,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from src.utils.charts import create_chart, add_indicator_charts
 from src.utils.indicators import add_indicator_data
 from src.utils.data import fetch_stock_data, process_data
-from .panels import indicator_settings_panel, settings_loader
+from .panels import indicator_settings_panel, indicator_settings_loader
 from src.trend.support_resistance import add_support_resistance_data
 
 
@@ -51,7 +51,7 @@ def chart_tab(st):
             st.session_state.indicator_settings = {ind: {} for ind in ["SMA", "EMA", "TDA", "S&R", "FIB", "TRE"]}
 
         # Load settings
-        st = settings_loader(st)
+        st = indicator_settings_loader(st)
 
         # **Indicator-Specific Settings**
         st.markdown("**Settings**")

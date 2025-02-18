@@ -43,8 +43,8 @@ def indicator_settings_panel(indicator, st):
     return st
 
 
-def settings_loader(st):
-    SETTINGS_FILE = "ui/config/settings.json"
+def indicator_settings_loader(st):
+    SETTINGS_FILE = "ui/config/indicator_settings.json"
 
     if "indicator_settings" not in st.session_state:
         st.session_state.indicator_settings = {}
@@ -54,17 +54,17 @@ def settings_loader(st):
 
     col1, col2 = st.columns([3, 1])
     with col1:
-        profile_name = st.text_input("Save Profile", placeholder="Type profile name...",
-                                     label_visibility="collapsed")
-    with col2:
-        save_clicked = st.button("Save")
-
-    col1, col2 = st.columns([3, 1])
-    with col1:
         selected_profile = st.selectbox("Select Profile", ["None"] + profile_list, index=0,
                                         label_visibility="collapsed")
     with col2:
         load_clicked = st.button("Load")
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        profile_name = st.text_input("Save Profile", placeholder="Type profile name...",
+                                     label_visibility="collapsed")
+    with col2:
+        save_clicked = st.button("Save")
 
     if save_clicked:
         if profile_name.strip():
@@ -92,5 +92,58 @@ def settings_loader(st):
             st.info(f"Settings loaded from '{selected_profile}'")
         else:
             st.warning("Selected profile not found or invalid.")
+
+    return st
+
+
+def trader_settings_loader(st):
+    SETTINGS_FILE = "ui/config/trader_settings.json"
+
+    if "indicator_settings" not in st.session_state:
+        st.session_state.indicator_settings = {}
+
+    available_settings = json.load(open(SETTINGS_FILE, "r")) if os.path.exists(SETTINGS_FILE) else {}
+    profile_list = list(available_settings.keys())
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        selected_profile = st.selectbox("Select Profile", ["None"] + profile_list, index=0,
+                                        label_visibility="collapsed")
+    with col2:
+        load_clicked = st.button("Load")
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        profile_name = st.text_input("Save Profile", placeholder="Type profile name...",
+                                     label_visibility="collapsed")
+    with col2:
+        save_clicked = st.button("Save")
+
+    # if save_clicked:
+    #     if profile_name.strip():
+    #         available_settings[profile_name] = {
+    #             "indicators": st.session_state.indicators,
+    #             "settings": st.session_state.indicator_settings
+    #         }
+    #         with open(SETTINGS_FILE, "w") as f:
+    #             json.dump(available_settings, f, indent=4)
+    #         st.success(f"Settings saved as '{profile_name}'")
+    #     else:
+    #         st.warning("Please enter a profile name before saving.")
+    #
+    # if load_clicked:
+    #     if selected_profile != "None" and selected_profile in available_settings:
+    #         loaded_profile = available_settings[selected_profile]
+    #
+    #         st.session_state.indicator_settings = {}
+    #         st.session_state.indicator_settings = loaded_profile.get("settings", {})
+    #
+    #         st.session_state.indicators = []
+    #         st.session_state.indicators = loaded_profile.get("indicators", [])
+    #
+    #         st.rerun()
+    #         st.info(f"Settings loaded from '{selected_profile}'")
+    #     else:
+    #         st.warning("Selected profile not found or invalid.")
 
     return st
