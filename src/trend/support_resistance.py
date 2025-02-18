@@ -23,7 +23,7 @@ def compute_pivot_points(data, interval, levels=2):
     return data.dropna()
 
 
-def compute_weekly_pivot_points(data, interval='1wk', levels=2):
+def compute_weekly_pivot_points(data, interval='1wk', levels=1):
     """Compute pivot points by resampling OHLC data for the given interval and computing multiple levels of support and resistance."""
 
     # Resampling according to the specified interval
@@ -31,7 +31,10 @@ def compute_weekly_pivot_points(data, interval='1wk', levels=2):
         '1d': 'D',
         '1wk': 'W-FRI',
         '2wk': '2W-FRI',
-        '1mo': 'M'
+        '1mo': 'M',
+        '3mo': '3M',
+        '6mo': '6M',
+        '1yr': 'Y'
     }
 
     if interval not in resample_mapping:
@@ -49,8 +52,8 @@ def compute_weekly_pivot_points(data, interval='1wk', levels=2):
 
     # Compute multiple support and resistance levels
     for i in range(1, levels + 1):
-        data[f'Support{i}'] = data['Pivot'] - i * (data['Prev_High'] - data['Prev_Low']) / 2
-        data[f'Resistance{i}'] = data['Pivot'] + i * (data['Prev_High'] - data['Prev_Low']) / 2
+        data[f'Support{i}'] = data['Pivot'] - i * (data['Prev_High'] - data['Prev_Low']) / (levels)
+        data[f'Resistance{i}'] = data['Pivot'] + i * (data['Prev_High'] - data['Prev_Low']) / (levels)
 
     return data.dropna()
 
@@ -68,5 +71,5 @@ def add_support_resistance_data(data, settings):
     """Compute and merge pivot points into the data."""
     data = compute_pivot_points(data, settings.get('sup_res_range', '1wk'))
     data.set_index('Datetime', inplace=True)
-    weekly_data = compute_weekly_pivot_points(data, settings.get('sup_res_range', '1wk'), levels=settings.get('num_levels', 2))
+    weekly_data = compute_weekly_pivot_points(data, settings.get('sup_res_range', '1wk'), levels=settings.get('num_levels', 1) + 1)
     return merge_weekly_pivot_points(data, weekly_data)

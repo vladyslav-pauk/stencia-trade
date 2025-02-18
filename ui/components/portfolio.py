@@ -12,7 +12,7 @@ def portfolio_tab(st):
         st.session_state.portfolio_history = pd.DataFrame(columns=["Date", "Total Value"])
 
     with st.sidebar:
-        st.header("Portfolio Settings")
+        st.header("Portfolio Manager")
         cash_balance = st.number_input("Starting Cash ($)", min_value=0.0, value=10000.0, step=100.0)
         refresh_portfolio = st.button("Refresh")
 

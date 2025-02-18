@@ -8,7 +8,9 @@ sys.path.insert(0, PROJECT_ROOT)
 from src.utils.charts import create_chart, add_indicator_charts
 from src.utils.indicators import add_indicator_data
 from src.utils.data import fetch_stock_data, process_data
+from .panels import indicator_settings_panel, settings_loader
 from src.trend.support_resistance import add_support_resistance_data
+
 
 def chart_tab(st):
     """Chart Tab: Displays stock chart with dynamic indicators and settings."""
@@ -16,71 +18,85 @@ def chart_tab(st):
     st.session_state.selected_tab = "Chart"
 
     with st.sidebar:
-        st.header("Stock Chart")
-        ticker = st.text_input("Ticker", "SPY")
-        update_chart = st.button("Update")
-        # TODO: dropdown with watchlist
+        st.header("Charting Tool")
 
-        st.divider()
-        st.subheader("Time Settings")
+        ticker = st.text_input("Ticker", "SPY")
+        chart_type = st.radio("Chart Type", ["Candlestick", "Line"], horizontal=True, label_visibility="collapsed")
+
         date_range = st.date_input("Date Range", [pd.to_datetime("2024-01-01"), pd.to_datetime("now")])
-        interval = st.selectbox("Interval", ["1d", "1h", "1m"])
+        interval = st.radio("Interval", ["1d", "1h", "1m"], horizontal=True)
+        update_chart = st.button("Update")
 
         st.divider()
         st.subheader("Indicators")
-        indicators = st.multiselect("Technical Indicators", ["SMA", "EMA", "TDA", "S&R"])
-        chart_type = st.radio("Chart Type", ["Candlestick", "Line"])
 
-        # Dynamic indicator settings
-        st.divider()
-        st.subheader("Indicator Settings")
+        # ✅ Preserve indicators selection correctly
+        if "indicators" not in st.session_state:
+            st.session_state.indicators = []
 
-        indicator = st.selectbox("Indicator", ["SMA", "EMA", "TDA", "S&R"])
+        selected_indicators = st.multiselect(
+            "Indicators",
+            ["SMA", "EMA", "TDA", "S&R", "FIB", "TRE"],
+            default=st.session_state.get("indicators", []),
+            label_visibility="collapsed",
+            placeholder="Select indicators..."
+        )
 
-        settings = {}
-        # Display relevant settings based on the selected indicator
-        if indicator == "SMA":
-            settings['sma_window'] = st.slider("Window Size", min_value=5, max_value=100, value=20, step=5)
-        elif indicator == "EMA":
-            settings['ema_window'] = st.slider("Window Size", min_value=5, max_value=100, value=20, step=5)
-        elif indicator == "TDA":
-            settings['dimension'] = st.slider("Dimension", min_value=1, max_value=10, value=5, step=1)
-            settings['delay'] = st.slider("Delay", min_value=1, max_value=20, value=5, step=1)
-            settings['window_size'] = st.slider("Window Size", min_value=10, max_value=100, value=20, step=5)
-        elif indicator == "S&R":
-            settings['sup_res_range'] = st.selectbox("Interval", ["1wk", "2wk", "1mo"])
-            settings['num_levels'] = st.slider("Number of Levels", min_value=2, max_value=10, value=5, step=1)
-        else:
-            settings['sup_res_range'], settings['num_levels'] = None, None  # Default values
+        # ✅ Update session state when the selection changes
+        if selected_indicators != st.session_state.indicators:
+            st.session_state.indicators = selected_indicators
 
-    # Fetch and update chart data
+        # ✅ Ensure indicator settings persist
+        if "indicator_settings" not in st.session_state:
+            st.session_state.indicator_settings = {ind: {} for ind in ["SMA", "EMA", "TDA", "S&R", "FIB", "TRE"]}
+
+        # Load settings
+        st = settings_loader(st)
+
+        # **Indicator-Specific Settings**
+        st.markdown("**Settings**")
+        indicator = st.selectbox("Indicator", st.session_state.indicator_settings.keys(), label_visibility="collapsed")
+        st = indicator_settings_panel(indicator, st)
+
+    # ✅ Ensure `update_chart` only triggers when necessary
     if update_chart or "chart_data" in st.session_state:
         if update_chart:
             start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
 
             st.session_state.chart_data = fetch_stock_data(ticker, (start_date, end_date), interval)
             st.session_state.chart_data = process_data(st.session_state.chart_data)
-            st.session_state.chart_data = add_indicator_data(st.session_state.chart_data, indicators, settings)
 
-            # Apply Support & Resistance only if selected
-            if "S&R" in indicators:
-                st.session_state.chart_data = add_support_resistance_data(st.session_state.chart_data, settings)
+            # ✅ Preserve selected indicators and settings
+            st.session_state.chart_data = add_indicator_data(
+                st.session_state.chart_data,
+                st.session_state.indicators,
+                st.session_state.indicator_settings
+            )
+
+            if "S&R" in st.session_state.indicators:
+                st.session_state.chart_data = add_support_resistance_data(
+                    st.session_state.chart_data,
+                    st.session_state.indicator_settings.get("S&R", {})
+                )
 
             st.session_state.chart_fig = create_chart(st.session_state.chart_data, ticker, chart_type)
-            st.session_state.chart_fig = add_indicator_charts(st.session_state.chart_fig, st.session_state.chart_data, indicators)
+            st.session_state.chart_fig = add_indicator_charts(
+                st.session_state.chart_fig,
+                st.session_state.chart_data,
+                st.session_state.indicators
+            )
 
-        # Display the chart
+        # ✅ Ensure the updated chart is displayed
         st.plotly_chart(st.session_state.chart_fig, use_container_width=True)
 
-        # Display dataframe with formatted timestamps
+        # ✅ Preserve data formatting
         st.dataframe(
             st.session_state.chart_data.assign(
                 Datetime=st.session_state.chart_data["Datetime"].dt.strftime("%Y-%m-%d %H:%M")
             )
         )
     else:
-        st.info("Click 'Update Chart' in the sidebar to generate a chart.")
-
+        st.info("Click 'Update' in the sidebar to generate a chart.")
 
 ## CHART ##
 # if st.sidebar.button('Update'):

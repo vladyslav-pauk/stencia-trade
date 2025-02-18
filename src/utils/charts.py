@@ -7,8 +7,11 @@ def colors(alpha=0.5):
     colors = {
         'support': f'rgba(255, 100, 100, {alpha})',
         'resistance': f'rgba(0, 255, 150, {alpha})',
-        'pivot': f'rgba(0, 255, 0, {alpha})',
-        'neutral': f'rgba(255, 165, 0, {alpha})'
+        'pivot': f'rgba(155, 165, 190, {alpha})',
+        'neutral': f'rgba(255, 165, 0, {alpha})',
+        'EMA': 'orange',
+        'SMA': 'yellow',
+        'TDA': 'purple'
     }
     return colors
 
@@ -87,7 +90,7 @@ def add_support_resistance(fig, data):
 
     # Dynamically add multiple support levels
     for i in range(1, levels + 1):
-        support_lower = f'Support{i + 1}' if i + 1 <= levels else f'Support{i}'
+        support_lower = f'Support{i + 1}' if i + 1 <= levels + 1 else f'Support{i}'
         support_upper = f'Support{i}'
 
         if support_lower in data and support_upper in data:
@@ -98,13 +101,13 @@ def add_support_resistance(fig, data):
             fig.add_trace(go.Scatter(
                 x=data['Datetime'], y=data[support_upper], mode='lines',
                 name=f'Support {i}', line=dict(color='rgba(0, 0, 255, 0)'),
-                fill='tonexty', fillcolor=colors(i / levels)['support']
+                fill='tonexty', fillcolor=colors(i / (levels + 1))['support']
             ))
 
     # Dynamically add multiple resistance levels
     for i in range(1, levels + 1):
         resistance_lower = f'Resistance{i}'
-        resistance_upper = f'Resistance{i + 1}' if i + 1 <= levels else f'Resistance{i}'
+        resistance_upper = f'Resistance{i + 1}' if i + 1 <= levels + 1 else f'Resistance{i}'
 
         if resistance_lower in data and resistance_upper in data:
             fig.add_trace(go.Scatter(
@@ -114,14 +117,14 @@ def add_support_resistance(fig, data):
             fig.add_trace(go.Scatter(
                 x=data['Datetime'], y=data[resistance_upper], mode='lines',
                 name=f'Resistance {i}', line=dict(color=f'rgba(255, 165, 0, 0)'),
-                fill='tonexty', fillcolor=colors(i / levels)['resistance']
+                fill='tonexty', fillcolor=colors(i / (levels + 1))['resistance']
             ))
 
     # Pivot Line
     if 'Pivot' in data:
         fig.add_trace(go.Scatter(
             x=data['Datetime'], y=data['Pivot'], mode='lines',
-            name='Pivot', line=dict(color=colors()['pivot'], width=2, dash='dash')
+            name='Pivot', line=dict(color=colors()['pivot'], width=1, dash='dash')
         ))
 
     return fig
@@ -132,7 +135,13 @@ def add_indicator_charts(fig, data, indicators):
         if indicator == 'S&R':
             fig = add_support_resistance(fig, data)
         else:
-            fig.add_trace(go.Scatter(x=data['Datetime'], y=data[indicator], name=indicator))
+            fig.add_trace(go.Scatter(
+                x=data['Datetime'],
+                y=data[indicator],
+                name=indicator,
+                marker=dict(color=colors()[indicator]),
+                line=dict(width=1)
+            ))
     return fig
 
 
@@ -265,7 +274,7 @@ def plot_trading_results(trade_data, full_data):
         y=full_data["Close"],
         mode='lines',
         name='Price',
-        line=dict(color='rgba(0, 100, 255, 0.5)', width=2)
+        line=dict(color='rgba(0, 100, 255, 0.5)', width=1)
     ))
 
     # Plot Cumulative Returns
@@ -274,46 +283,48 @@ def plot_trading_results(trade_data, full_data):
         y=trade_data["Cumulative Returns"],
         mode="lines",
         name="Cumulative Returns",
-        line=dict(color="orange", width=2),
+        line=dict(color="orange", width=1),
     ))
 
     # --- Support Band ---
-    fig.add_trace(go.Scatter(
-        x=full_data.index,
-        y=full_data['Support2'],
-        mode='lines',
-        line=dict(color='rgba(0, 0, 255, 0)'),  # Invisible lower bound
-        showlegend=False,
-        hoverinfo='skip'
-    ))
-    fig.add_trace(go.Scatter(
-        x=full_data.index,
-        y=full_data['Support1'],
-        mode='lines',
-        name='Support Zone',
-        line=dict(color='rgba(0, 0, 255, 0)'),  # Invisible upper bound
-        fill='tonexty',
-        fillcolor=colors()['support']
-    ))
+    # fig.add_trace(go.Scatter(
+    #     x=full_data.index,
+    #     y=full_data['Support2'],
+    #     mode='lines',
+    #     line=dict(color='rgba(0, 0, 255, 0)'),  # Invisible lower bound
+    #     showlegend=False,
+    #     hoverinfo='skip'
+    # ))
+    # fig.add_trace(go.Scatter(
+    #     x=full_data.index,
+    #     y=full_data['Support1'],
+    #     mode='lines',
+    #     name='Support Zone',
+    #     line=dict(color='rgba(0, 0, 255, 0)'),  # Invisible upper bound
+    #     fill='tonexty',
+    #     fillcolor=colors()['support']
+    # ))
 
     # --- Resistance Band ---
-    fig.add_trace(go.Scatter(
-        x=full_data.index,
-        y=full_data['Resistance1'],
-        mode='lines',
-        line=dict(color='rgba(255, 0, 0, 0)'),  # Invisible lower bound
-        showlegend=False,
-        hoverinfo='skip'
-    ))
-    fig.add_trace(go.Scatter(
-        x=full_data.index,
-        y=full_data['Resistance2'],
-        mode='lines',
-        name='Resistance Zone',
-        line=dict(color='rgba(255, 0, 0, 0)'),  # Invisible upper bound
-        fill='tonexty',
-        fillcolor=colors()['resistance']
-    ))
+    # fig.add_trace(go.Scatter(
+    #     x=full_data.index,
+    #     y=full_data['Resistance1'],
+    #     mode='lines',
+    #     line=dict(color='rgba(255, 0, 0, 0)'),  # Invisible lower bound
+    #     showlegend=False,
+    #     hoverinfo='skip'
+    # ))
+    # fig.add_trace(go.Scatter(
+    #     x=full_data.index,
+    #     y=full_data['Resistance2'],
+    #     mode='lines',
+    #     name='Resistance Zone',
+    #     line=dict(color='rgba(255, 0, 0, 0)'),  # Invisible upper bound
+    #     fill='tonexty',
+    #     fillcolor=colors()['resistance']
+    # ))
+
+    fig = add_support_resistance(fig, full_data)
 
     # Buy & Sell signals
     buy_signals = trade_data[trade_data["Action"] == "Buy"]
@@ -371,7 +382,7 @@ def plot_trading_actions(st):
         y=st.session_state.trade_summary["Relative Returns"] - 1,
         mode="lines",
         name="Relative Returns",
-        line=dict(color="yellow", width=2),
+        line=dict(color="yellow", width=1),
         # showlegend=False
     ))
 

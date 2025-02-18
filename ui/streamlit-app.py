@@ -10,7 +10,7 @@ st.set_page_config(layout="wide")
 st.title('Dashboard')
 
 if "selected_tab" not in st.session_state:
-    st.session_state.selected_tab = "Chart"
+    st.session_state.selected_tab = "Help"
 
 def update_tab(selected):
     st.session_state.selected_tab = selected

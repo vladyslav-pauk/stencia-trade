@@ -1,0 +1,27 @@
+{
+    "My_Profile": {
+        "indicators": [
+            "SMA",
+            "TDA",
+            "S&R",
+            "EMA"
+        ],
+        "settings": {
+            "SMA": {
+                "window": 35
+            },
+            "EMA": {},
+            "TDA": {
+                "dimension": 7,
+                "delay": 5,
+                "window_size": 20
+            },
+            "S&R": {
+                "sup_res_range": "2wk",
+                "num_levels": 4
+            },
+            "FIB": {},
+            "TRE": {}
+        }
+    }
+}
