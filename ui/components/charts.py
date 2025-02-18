@@ -215,7 +215,11 @@ def create_trader_chart(st):
 
     fig.update_xaxes(showticklabels=False, row=1, col=1)
     fig.update_xaxes(title='Time', row=2, col=1)
-    fig.update_yaxes(title='Return (%)', row=2, col=1)
+    fig.update_yaxes(
+        title='Return',
+        tickformat=".1%",
+        row=2, col=1
+    )
 
     # ✅ Improve Layout
     fig.update_layout(
