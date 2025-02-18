@@ -1,2 +1,46 @@
 {
+    "profile": {
+        "indicators": [],
+        "settings": {
+            "SMA": {
+                "window": 20
+            },
+            "EMA": {},
+            "TDA": {},
+            "S&R": {
+                "sup_res_range": "1wk",
+                "num_levels": 1
+            },
+            "FIB": {},
+            "TRE": {}
+        },
+        "trade_settings": {
+            "entry_threshold": 0.58,
+            "stop_loss": 5.5,
+            "take_profit": 5.0,
+            "best_parameters": false
+        }
+    },
+    "aapl_1d_profile": {
+        "indicators": [],
+        "settings": {
+            "SMA": {
+                "window": 20
+            },
+            "EMA": {},
+            "TDA": {},
+            "S&R": {
+                "sup_res_range": "2wk",
+                "num_levels": 1
+            },
+            "FIB": {},
+            "TRE": {}
+        },
+        "trade_settings": {
+            "entry_threshold": 0.38,
+            "stop_loss": 3.2,
+            "take_profit": 10.0,
+            "best_parameters": false
+        }
+    }
 }

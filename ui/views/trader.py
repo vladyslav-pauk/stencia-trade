@@ -10,7 +10,7 @@ from src.trade.strategy import support_resistance
 
 from ui.components.notifications import notifications
 from ui.components.dashboard import notifications_monitor
-from ui.components.sidebar import indicator_settings_pane, trader_settings_loader_pane
+from ui.components.sidebar import indicator_settings_pane, trader_settings_loader_pane, trader_settings_pane
 from ui.components.indicators import add_support_resistance_data
 from ui.components.charts import create_trader_chart, add_indicator_charts
 
@@ -37,16 +37,19 @@ def trader_tab(st):
         if "indicator_settings" not in st.session_state:
             st.session_state.indicator_settings = {ind: {} for ind in ["SMA", "EMA", "TDA", "S&R", "FIB", "TRE"]}
 
+        if "trade_settings" not in st.session_state:
+            st.session_state.trade_settings = {}
+
+        if "indicators" not in st.session_state:
+            st.session_state.indicators = []
+
         st = trader_settings_loader_pane(st)
 
         st.markdown("**Indicator Settings**")
         st = indicator_settings_pane(indicator, st)
 
         st.markdown("**Trader Settings**")
-        entry_threshold = st.slider("Entry Threshold (%)", 0.0, 1.0, 0.01, step=0.01)
-        stop_loss = st.slider("Stop Loss (%)", 0.01, 10.0, 3.0, step=0.1)
-        take_profit = st.slider("Take Profit (%)", 0.01, 10.0, 5.0, step=0.1)
-        best_parameters = st.button("Optimize Parameters")
+        st = trader_settings_pane(st)
 
         st.divider()
         st.subheader("Notifications")
@@ -66,9 +69,9 @@ def trader_tab(st):
             st.session_state.trade_summary = support_resistance(
                 st.session_state.trader_data,
                 st.session_state.strategy,
-                entry_threshold / 100,
-                stop_loss / 100,
-                take_profit / 100
+                st.session_state.trade_settings['entry_threshold'] / 100,
+                st.session_state.trade_settings['stop_loss'] / 100,
+                st.session_state.trade_settings['take_profit'] / 100
             )
 
             st.session_state.trade_fig = create_trader_chart(st)
@@ -98,7 +101,6 @@ def trader_tab(st):
     # fixme: cumulative and relative profit calculation and extension
     # fixme: add show/hide table button
 
-    # fixme: save/load trading profile
     # fixme: 1m interval error, add 1 wk interval (handle tda error when short range)
 
     # fixme: tune and check S&R indicators and strategy

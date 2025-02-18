@@ -78,32 +78,37 @@ def trader_settings_loader_pane(st):
     with col2:
         save_clicked = st.button("Save")
 
-    # if save_clicked:
-    #     if profile_name.strip():
-    #         available_settings[profile_name] = {
-    #             "indicators": st.session_state.indicators,
-    #             "settings": st.session_state.indicator_settings
-    #         }
-    #         with open(SETTINGS_FILE, "w") as f:
-    #             json.dump(available_settings, f, indent=4)
-    #         st.success(f"Settings saved as '{profile_name}'")
-    #     else:
-    #         st.warning("Please enter a profile name before saving.")
-    #
-    # if load_clicked:
-    #     if selected_profile != "None" and selected_profile in available_settings:
-    #         loaded_profile = available_settings[selected_profile]
-    #
-    #         st.session_state.indicator_settings = {}
-    #         st.session_state.indicator_settings = loaded_profile.get("settings", {})
-    #
-    #         st.session_state.indicators = []
-    #         st.session_state.indicators = loaded_profile.get("indicators", [])
-    #
-    #         st.rerun()
-    #         st.info(f"Settings loaded from '{selected_profile}'")
-    #     else:
-    #         st.warning("Selected profile not found or invalid.")
+    if save_clicked:
+        if profile_name.strip():
+            available_settings[profile_name] = {
+                "indicators": st.session_state.indicators,
+                "settings": st.session_state.indicator_settings,
+                "trade_settings": st.session_state.trade_settings
+            }
+            with open(SETTINGS_FILE, "w") as f:
+                json.dump(available_settings, f, indent=4)
+            st.success(f"Settings saved as '{profile_name}'")
+        else:
+            st.warning("Please enter a profile name before saving.")
+
+    if load_clicked:
+        if selected_profile != "None" and selected_profile in available_settings:
+            loaded_profile = available_settings[selected_profile]
+
+            st.session_state.indicator_settings = {}
+            st.session_state.indicator_settings = loaded_profile.get("settings", {})
+
+            st.session_state.indicators = []
+            st.session_state.indicators = loaded_profile.get("indicators", [])
+
+            st.session_state.trade_settings = {}
+            st.session_state.trade_settings = loaded_profile.get("trade_settings", {})
+
+            st.rerun()
+            st.info(f"Settings loaded from '{selected_profile}'")
+            # todo: info load not showing both in trader and charter
+        else:
+            st.warning("Selected profile not found or invalid.")
 
     return st
 
@@ -153,9 +158,17 @@ def indicator_settings_pane(indicator, st):
         )
 
     elif indicator == "S&R":
+        sup_res_options = ["1wk", "2wk", "1mo", "3mo", "6mo", "1yr"]
+        default_value = st.session_state.indicator_settings[indicator].get('sup_res_range', "1mo")
+
+        # Ensure the default value is in the list and get its index
+        default_index = sup_res_options.index(
+            default_value) if default_value in sup_res_options else 2  # "1mo" is at index 2
+
         st.session_state.indicator_settings[indicator]['sup_res_range'] = st.selectbox(
             "Interval",
-            ["1wk", "2wk", "1mo", "3mo", "6mo", "1yr"]
+            sup_res_options,
+            index=default_index
         )
         st.session_state.indicator_settings[indicator]['num_levels'] = st.slider(
             "Levels",
@@ -169,6 +182,21 @@ def indicator_settings_pane(indicator, st):
         st.session_state.indicator_settings[indicator]['sup_res_range'], st.session_state.indicator_settings[indicator][
             'num_levels'] = None, None
 
+    return st
+
+
+def trader_settings_pane(st):
+    st.session_state.trade_settings['entry_threshold'] = st.slider(
+        "Entry Threshold (%)", 0.0, 1.0, st.session_state.trade_settings.get('entry_threshold', 0.01), step=0.01
+    )
+    st.session_state.trade_settings['stop_loss'] = st.slider(
+        "Stop Loss (%)", 0.01, 10.0, st.session_state.trade_settings.get('stop_loss', 3.0), step=0.1
+    )
+    st.session_state.trade_settings['take_profit'] = st.slider(
+        "Take Profit (%)", 0.01, 10.0, st.session_state.trade_settings.get('take_profit', 5.0), step=0.1
+    )
+
+    st.session_state.trade_settings['best_parameters'] = st.button("Optimize Parameters")
     return st
 
 
