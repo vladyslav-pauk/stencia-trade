@@ -3,7 +3,7 @@ def help_tab(st):
 
     # Help text for each tab
     text = {
-        "About": "This is the about tab.",
+        "About": "Stencia-Trade is a Streamlit application that allows users to analyze and visualize stock data, backtest trading strategies, and search for trading opportunities.",
         "Chart": "This is the chart tab.",
         "Trader": "This is the trader tab.",
         "Screener": "This is the screener tab.",
