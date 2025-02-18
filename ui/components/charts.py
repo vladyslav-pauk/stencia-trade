@@ -16,7 +16,7 @@ def colors(alpha=0.5):
     return colors
 
 
-def create_chart(data, ticker, chart_type):
+def create_indicator_chart(data, ticker, chart_type, indicators):
     """
     Create a Plotly chart based on the given data and parameters.
     """
@@ -73,13 +73,69 @@ def create_chart(data, ticker, chart_type):
     #     dict(bounds=[16, 9.5], pattern="hour")  # Remove non-trading hours (16:00 to 9:30)
     # ])
     fig.layout.template = 'plotly_dark'
+
+    fig = add_indicator_charts(fig, data, indicators)
+    return fig
+
+
+def add_support_resistance(fig, data, data_x):
+    """
+    Add multiple levels of support and resistance bands dynamically.
+
+    Args:
+        fig (go.Figure): The Plotly figure to modify.
+        data (pd.DataFrame): Data containing support and resistance levels.
+        levels (int): Number of support & resistance levels to plot.
+        alpha (float): Transparency for the shaded regions (0 to 1).
+    """
+    levels = data.filter(like='Support').shape[1]
+
+    # Dynamically add multiple support levels
+    for i in range(1, levels + 1):
+        support_lower = f'Support{i + 1}' if i + 1 <= levels + 1 else f'Support{i}'
+        support_upper = f'Support{i}'
+
+        if support_lower in data and support_upper in data:
+            fig.add_trace(go.Scatter(
+                x=data_x, y=data[support_lower], mode='lines',
+                line=dict(color='rgba(0, 0, 255, 0)'), showlegend=False, hoverinfo='skip'
+            ))
+            fig.add_trace(go.Scatter(
+                x=data_x, y=data[support_upper], mode='lines',
+                name=f'Support {i}', line=dict(color='rgba(0, 0, 255, 0)'),
+                fill='tonexty', fillcolor=colors(i / (levels + 1))['support']
+            ))
+
+    # Dynamically add multiple resistance levels
+    for i in range(1, levels + 1):
+        resistance_lower = f'Resistance{i}'
+        resistance_upper = f'Resistance{i + 1}' if i + 1 <= levels + 1 else f'Resistance{i}'
+
+        if resistance_lower in data and resistance_upper in data:
+            fig.add_trace(go.Scatter(
+                x=data_x, y=data[resistance_lower], mode='lines',
+                line=dict(color=f'rgba(255, 165, 0, 0)'), showlegend=False, hoverinfo='skip'
+            ))
+            fig.add_trace(go.Scatter(
+                x=data_x, y=data[resistance_upper], mode='lines',
+                name=f'Resistance {i}', line=dict(color=f'rgba(255, 165, 0, 0)'),
+                fill='tonexty', fillcolor=colors(i / (levels + 1))['resistance']
+            ))
+
+    # Pivot Line
+    if 'Pivot' in data:
+        fig.add_trace(go.Scatter(
+            x=data_x, y=data['Pivot'], mode='lines',
+            name='Pivot', line=dict(color=colors()['pivot'], width=1, dash='dash')
+        ))
+
     return fig
 
 
 def add_indicator_charts(fig, data, indicators):
     for indicator in indicators:
         if indicator == 'S&R':
-            fig = add_support_resistance(fig, data)
+            fig = add_support_resistance(fig, data, data['Datetime'])
         else:
             fig.add_trace(go.Scatter(
                 x=data['Datetime'],
@@ -90,42 +146,6 @@ def add_indicator_charts(fig, data, indicators):
             ))
     return fig
 
-
-# def create_trader_chart(st):
-#     """Creates a two-row Plotly subplot: Price + Trading Actions."""
-#
-#     # Create subplots with shared x-axis
-#     fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
-#                         row_heights=[0.7, 0.3],  # 70% for price, 30% for actions
-#                         vertical_spacing=0.02)
-#
-#     # Ensure required data is available
-#     if "trade_summary" not in st.session_state or "trader_data" not in st.session_state:
-#         return go.Figure()  # Return empty figure if no data
-#
-#     # Get sub-figures
-#     price_chart = plot_trading_results(st.session_state.trade_summary, st.session_state.trader_data)
-#     actions_chart = plot_trading_actions(st)
-#
-#     # Add price chart traces (first row)
-#     for trace in price_chart["data"]:
-#         fig.add_trace(trace, row=1, col=1)
-#
-#     # Add action chart traces (second row)
-#     for trace in actions_chart["data"]:
-#         fig.add_trace(trace, row=2, col=1)
-#
-#     # Remove x-axis labels from the first plot (for alignment)
-#     fig.update_xaxes(showticklabels=False, row=1, col=1)
-#
-#     # Set layout configurations
-#     fig.update_layout(
-#         height=700,
-#         showlegend=True,
-#         margin=dict(l=10, r=10, t=10, b=10),
-#     )
-#
-#     return fig
 
 def create_trader_chart(st):
     """Creates a two-row Plotly subplot: Price + Trading Actions with Buy & Hold line."""
@@ -214,7 +234,6 @@ def plot_trading_results(trade_data, full_data):
 
     fig = go.Figure()
 
-    # Plot Price Line
     fig.add_trace(go.Scatter(
         x=full_data.index,
         y=full_data["Close"],
@@ -223,7 +242,6 @@ def plot_trading_results(trade_data, full_data):
         line=dict(color='rgba(0, 100, 255, 0.5)', width=1)
     ))
 
-    # Plot Cumulative Returns
     fig.add_trace(go.Scatter(
         x=trade_data["Date"],
         y=trade_data["Cumulative Returns"],
@@ -232,48 +250,8 @@ def plot_trading_results(trade_data, full_data):
         line=dict(color="orange", width=1),
     ))
 
-    # # --- Support Band ---
-    # fig.add_trace(go.Scatter(
-    #     x=full_data.index,
-    #     y=full_data['Support2'],
-    #     mode='lines',
-    #     line=dict(color='rgba(0, 0, 255, 0)'),  # Invisible lower bound
-    #     showlegend=False,
-    #     hoverinfo='skip'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     x=full_data.index,
-    #     y=full_data['Support1'],
-    #     mode='lines',
-    #     name='Support Zone',
-    #     line=dict(color='rgba(0, 0, 255, 0)'),  # Invisible upper bound
-    #     fill='tonexty',
-    #     fillcolor=colors()['support']
-    # ))
-    #
-    # # --- Resistance Band ---
-    # fig.add_trace(go.Scatter(
-    #     x=full_data.index,
-    #     y=full_data['Resistance1'],
-    #     mode='lines',
-    #     line=dict(color='rgba(255, 0, 0, 0)'),  # Invisible lower bound
-    #     showlegend=False,
-    #     hoverinfo='skip'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     x=full_data.index,
-    #     y=full_data['Resistance2'],
-    #     mode='lines',
-    #     name='Resistance Zone',
-    #     line=dict(color='rgba(255, 0, 0, 0)'),  # Invisible upper bound
-    #     fill='tonexty',
-    #     fillcolor=colors()['resistance']
-    # ))
+    fig = add_support_resistance(fig, full_data, full_data.index)
 
-    fig = add_support_resistance_trade(fig, full_data)
-
-
-    # Buy & Sell signals
     buy_signals = trade_data[trade_data["Action"] == "Buy"]
     sell_signals = trade_data[trade_data["Action"] == "Sell"]
 
@@ -409,105 +387,5 @@ def plot_screener_results(df):
         height=700,
         margin=dict(l=10, r=100, t=40, b=10)  # Extra right margin for labels
     )
-
-    return fig
-
-
-def add_support_resistance_trade(fig, data):
-    """Add multiple levels of support and resistance bands dynamically."""
-    levels = data.filter(like='Support').shape[1]
-
-    # Dynamically add multiple support levels
-    for i in range(1, levels + 1):
-        support_lower = f'Support{i - 1}' if i > 1 else f'Support{i}'
-        support_upper = f'Support{i}'
-
-        if support_lower in data and support_upper in data:
-            fig.add_trace(go.Scatter(
-                x=data.index, y=data[support_upper], mode='lines',
-                name=f'Support {i}', line=dict(color='rgba(0, 0, 255, 0)'),
-            ))
-            fig.add_trace(go.Scatter(
-                x=data.index, y=data[support_lower], mode='lines',
-                line=dict(color='rgba(0, 0, 255, 0)'), showlegend=False, hoverinfo='skip',
-                fill='tonexty', fillcolor=colors(i / (levels + 1))['support']
-            ))
-
-    # Dynamically add multiple resistance levels
-    for i in range(1, levels + 1):
-        resistance_lower = f'Resistance{i}'
-        resistance_upper = f'Resistance{i - 1}' if i > 1 else f'Resistance{i}'
-
-        if resistance_lower in data and resistance_upper in data:
-            fig.add_trace(go.Scatter(
-                x=data.index, y=data[resistance_upper], mode='lines',
-                name=f'Resistance {i}', line=dict(color='rgba(255, 165, 0, 0)'),
-            ))
-            fig.add_trace(go.Scatter(
-                x=data.index, y=data[resistance_lower], mode='lines',
-                line=dict(color='rgba(255, 165, 0, 0)'), showlegend=False, hoverinfo='skip',
-                fill='tonexty', fillcolor=colors(i / (levels + 1))['resistance']
-            ))
-
-    # Pivot Line
-    if 'Pivot' in data:
-        fig.add_trace(go.Scatter(
-            x=data.index, y=data['Pivot'], mode='lines',
-            name='Pivot', line=dict(color=colors()['pivot'], width=1, dash='dash')
-        ))
-
-    return fig
-
-
-def add_support_resistance(fig, data):
-    """
-    Add multiple levels of support and resistance bands dynamically.
-
-    Args:
-        fig (go.Figure): The Plotly figure to modify.
-        data (pd.DataFrame): Data containing support and resistance levels.
-        levels (int): Number of support & resistance levels to plot.
-        alpha (float): Transparency for the shaded regions (0 to 1).
-    """
-    levels = data.filter(like='Support').shape[1]
-
-    # Dynamically add multiple support levels
-    for i in range(1, levels + 1):
-        support_lower = f'Support{i + 1}' if i + 1 <= levels + 1 else f'Support{i}'
-        support_upper = f'Support{i}'
-
-        if support_lower in data and support_upper in data:
-            fig.add_trace(go.Scatter(
-                x=data['Datetime'], y=data[support_lower], mode='lines',
-                line=dict(color='rgba(0, 0, 255, 0)'), showlegend=False, hoverinfo='skip'
-            ))
-            fig.add_trace(go.Scatter(
-                x=data['Datetime'], y=data[support_upper], mode='lines',
-                name=f'Support {i}', line=dict(color='rgba(0, 0, 255, 0)'),
-                fill='tonexty', fillcolor=colors(i / (levels + 1))['support']
-            ))
-
-    # Dynamically add multiple resistance levels
-    for i in range(1, levels + 1):
-        resistance_lower = f'Resistance{i}'
-        resistance_upper = f'Resistance{i + 1}' if i + 1 <= levels + 1 else f'Resistance{i}'
-
-        if resistance_lower in data and resistance_upper in data:
-            fig.add_trace(go.Scatter(
-                x=data['Datetime'], y=data[resistance_lower], mode='lines',
-                line=dict(color=f'rgba(255, 165, 0, 0)'), showlegend=False, hoverinfo='skip'
-            ))
-            fig.add_trace(go.Scatter(
-                x=data['Datetime'], y=data[resistance_upper], mode='lines',
-                name=f'Resistance {i}', line=dict(color=f'rgba(255, 165, 0, 0)'),
-                fill='tonexty', fillcolor=colors(i / (levels + 1))['resistance']
-            ))
-
-    # Pivot Line
-    if 'Pivot' in data:
-        fig.add_trace(go.Scatter(
-            x=data['Datetime'], y=data['Pivot'], mode='lines',
-            name='Pivot', line=dict(color=colors()['pivot'], width=1, dash='dash')
-        ))
 
     return fig

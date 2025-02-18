@@ -32,7 +32,7 @@ import mplfinance as mpf
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
-from src.utils.charts import create_chart, add_indicator_charts, plot_screener_results
+from ui.components.charts import plot_screener_results
 
 # Define list of tickers
 TICKERS = [

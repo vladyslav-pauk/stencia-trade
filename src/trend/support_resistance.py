@@ -65,11 +65,3 @@ def merge_weekly_pivot_points(hourly_data, weekly_data):
     weekly_data = weekly_data.reset_index()
     weekly_data = weekly_data[['Datetime', 'Pivot'] + [f'Support{level}' for level in range(1, levels + 1)] + [f'Resistance{level}' for level in range(1, levels + 1)]]
     return pd.merge_asof(hourly_data, weekly_data, on='Datetime', direction='backward' , suffixes=('_', ''))
-
-
-def add_support_resistance_data(data, settings):
-    """Compute and merge pivot points into the data."""
-    data = compute_pivot_points(data, settings.get('sup_res_range', '1wk'))
-    data.set_index('Datetime', inplace=True)
-    weekly_data = compute_weekly_pivot_points(data, settings.get('sup_res_range', '1wk'), levels=settings.get('num_levels', 1) + 1)
-    return merge_weekly_pivot_points(data, weekly_data)

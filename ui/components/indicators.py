@@ -3,6 +3,7 @@ import ta
 
 from src.tda.homology import compute_topological_metrics
 from src.tda.embedding import embedding_time_series
+from src.trend.support_resistance import compute_pivot_points, compute_weekly_pivot_points, merge_weekly_pivot_points
 
 def add_indicator_data(data, indicators, settings):
     data['SMA'] = ta.trend.sma_indicator(data['Close'].squeeze(), window=settings['SMA'].get('window', 20))
@@ -28,3 +29,11 @@ def add_indicator_data(data, indicators, settings):
 
     data['TDA'] = normalized_metric
     return data
+
+
+def add_support_resistance_data(data, settings):
+    """Compute and merge pivot points into the data."""
+    data = compute_pivot_points(data, settings.get('sup_res_range', '1wk'))
+    data.set_index('Datetime', inplace=True)
+    weekly_data = compute_weekly_pivot_points(data, settings.get('sup_res_range', '1wk'), levels=settings.get('num_levels', 1) + 1)
+    return merge_weekly_pivot_points(data, weekly_data)

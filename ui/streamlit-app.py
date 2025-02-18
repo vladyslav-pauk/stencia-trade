@@ -1,10 +1,10 @@
 import streamlit as st
 
-from components.chart import chart_tab
-from components.trader import trader_tab
-from components.screener import screener_tab
-from components.portfolio import portfolio_tab
-from components.help import help_tab
+from views.chart import chart_tab
+from views.trader import trader_tab
+from views.screener import screener_tab
+from views.portfolio import portfolio_tab
+from views.help import help_tab
 
 st.set_page_config(layout="wide")
 st.title('Dashboard')
@@ -35,3 +35,5 @@ if tab_selection == "Portfolio":
 
 if tab_selection == "Help":
     help_tab(st)
+
+# fixme: error handling when yfinance data not available
