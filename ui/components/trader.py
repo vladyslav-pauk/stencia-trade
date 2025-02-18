@@ -9,7 +9,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from src.utils.data import fetch_stock_data, process_data
 from src.trend.support_resistance import add_support_resistance_data
 from src.trade.strategy import support_resistance
-from src.utils.charts import create_trader_chart
+from src.utils.charts import create_trader_chart, add_indicator_charts
 from .panels import indicator_settings_panel, trader_settings_loader
 
 def trader_tab(st):
@@ -36,10 +36,14 @@ def trader_tab(st):
         # indicator = st.selectbox("Indicator", ["S&R"])
 
         strategy = st.selectbox("Strategy", ["Support-Resistance", "Moving Average Crossover"], label_visibility="collapsed")
-        st = trader_settings_loader(st)
-
         indicator = {"Support-Resistance": "S&R", "Moving Average Crossover": "SMA"}[strategy]
         st.markdown("**Indicator Settings**")
+
+        if "indicator_settings" not in st.session_state:
+            st.session_state.indicator_settings = {ind: {} for ind in ["SMA", "EMA", "TDA", "S&R", "FIB", "TRE"]}
+
+        st = trader_settings_loader(st)
+
         st = indicator_settings_panel(indicator, st)
 
         st.markdown("**Trader Settings**")
@@ -61,7 +65,11 @@ def trader_tab(st):
             st.session_state.trade_summary = support_resistance(st.session_state.trader_data, strategy, entry_threshold / 100, stop_loss / 100, take_profit / 100)
 
             st.session_state.trade_fig = create_trader_chart(st)
-            # st.session_state.chart_fig = add_indicator_charts(st.session_state.chart_fig, st.session_state.chart_data, indicators)
+            # st.session_state.trade_fig = add_indicator_charts(
+            #     st.session_state.trade_fig,
+            #     st.session_state.trader_data,
+            #     [indicator]
+            # )
 
         st.plotly_chart(st.session_state.trade_fig, use_container_width=True)
         st.dataframe(st.session_state.trade_summary)
