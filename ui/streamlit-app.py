@@ -37,3 +37,4 @@ if tab_selection == "Help":
     help_tab(st)
 
 # fixme: error handling when yfinance data not available
+# fixme: fill help tab

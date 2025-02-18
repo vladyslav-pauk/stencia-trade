@@ -66,3 +66,5 @@ def portfolio_tab(st):
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+# todo: create and save portfolio list separate from watchlist

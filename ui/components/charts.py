@@ -25,6 +25,7 @@ def create_indicator_chart(data, ticker, chart_type, indicators):
     #     range_breaks = [dict(bounds=["fri", "sun"])]
     # elif time_period == '1wk':
     #     range_breaks = [dict(bounds=[16, 9], pattern="hour")]
+    # fixme: range breaks
 
     fig = go.Figure()
     if chart_type == 'Candlestick':
@@ -389,3 +390,6 @@ def plot_screener_results(df):
     )
 
     return fig
+
+# fixme: unified charting - create_chart, add_indicator_charts, add_support_resistance, add_trading_results, add_trading_actions
+# fixme: legends in trade chart

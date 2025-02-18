@@ -17,7 +17,7 @@
 #     if "screener_data" in st.session_state:
 #         # st.info(f"Fetching stocks based on **{screener_criteria}** criteria...")
 #         st.dataframe(st.session_state.screener_data)
-#         # todo: add to watchlist buttons or checkmarks and button in sidebar
+#         # todo: add to watchlist buttons or checkmarks and button in sidebar, and save/load wathclist
 #     else:
 #         st.info("Select screener criteria in the sidebar and click 'Run Screener'.")
 
@@ -274,3 +274,7 @@ def fetch_screener_data(tickers):
 #             st.write("Selected Stocks:", ", ".join(selected_stocks))
 #     else:
 #         st.info("Select screener criteria in the sidebar and click 'Run Screener'.")
+
+
+# todo: screen index or other lists (make some lists) or screen watchlist
+# todo: watchlist, save/delete to/from watchlist button, when clicked drop down watchlist

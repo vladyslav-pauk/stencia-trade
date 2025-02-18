@@ -60,6 +60,7 @@ def stock_monitor(st):
             pct_change = (change / real_time_data['Open'].iloc[0].values[0] ) * 100
             st.metric(f"{symbol}", f"{last_price:.2f} USD", f"{change:.2f} ({pct_change:.2f}%)")
 
+    # todo: add small green change with arrow
     return st
 
 

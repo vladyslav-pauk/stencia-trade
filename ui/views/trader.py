@@ -78,7 +78,6 @@ def trader_tab(st):
             #     [indicator]
             # )
 
-
         if "monitor_thread" in st.session_state and st.session_state.monitor_thread:
                 notifications_monitor(st)
 
@@ -87,7 +86,22 @@ def trader_tab(st):
     else:
         st.info("Click 'Backtest' to simulate the trading strategy.")
 
-    # todo: use real dates in trader
+    # fixme: use real dates in trader
     # todo: fix ranges and inside margins (0 should be at axis crossing).
-    # todo: chart type independent of chart tab
-    # todo: separate trader and charter indicator settings
+
+    # fixme: unify chart and trader tabs
+    # todo: separate trader and charter indicator settings, or unify and use the same
+    # todo: chart type independent of chart tab (don't use st for this)
+
+    # fixme: create notifications monitor tab
+
+    # fixme: cumulative and relative profit calculation and extension
+    # fixme: add show/hide table button
+
+    # fixme: save/load trading profile
+    # fixme: 1m interval error, add 1 wk interval (handle tda error when short range)
+
+    # fixme: tune and check S&R indicators and strategy
+    # fixme: add checkbox to add indicators to the strategy so we have combined strategy,
+    #  save and load instead of indicator = {"Support-Resistance": "S&R", "Moving Average Crossover": "SMA"}[st.session_state.strategy]
+    #  strategy is defined for each indicator;

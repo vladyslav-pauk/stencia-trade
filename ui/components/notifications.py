@@ -108,3 +108,6 @@ def notifications(st, email):
             st.success("Started monitoring trading signals.")
 
     return st
+
+# fixme: monitor should run in background thread
+# fixme: send email notifications
